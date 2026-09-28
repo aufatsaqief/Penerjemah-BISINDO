@@ -12,6 +12,20 @@ Fitur: kelas "Netral" agar model tidak menebak saat tangan diam, ekspor dan impo
 1. Buka file `index.html` di browser.
 2. Atau jalankan server statis lokal jika diperlukan.
 
+## Deploy ke GitHub Pages
+Repository GitHub Anda saat ini adalah:
+- `https://github.com/aufatsaqief/Penerjemah-BISINDO.git`
+
+Maka URL GitHub Pages yang benar adalah:
+- `https://aufatsaqief.github.io/Penerjemah-BISINDO/`
+
+Langkah deploy:
+1. Pastikan repo sudah tersimpan di GitHub dan branch default adalah `main`.
+2. Buka repository GitHub di browser.
+3. Masuk ke `Settings` > `Pages`.
+4. Pilih `Source: GitHub Actions`.
+5. Push ke branch `main`, lalu workflow akan otomatis deploy.
+
 ## Teknologi
 - HTML
 - CSS
