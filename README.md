@@ -1,34 +1,35 @@
 # Penerjemah BISINDO
 
-Proyek web yang mengenali huruf bahasa isyarat BISINDO. MediaPipe HandLandmarker mengambil 21 titik per tangan (dua tangan didukung), lalu titik-titik itu diubah menjadi 86 angka fitur. Anda merekam contoh sendiri per huruf, melatih model MLP kecil dengan TensorFlow.js di browser, lalu berisyarat. Huruf yang stabil dan cukup yakin masuk ke kotak teks hasil.
+Proyek demo pengenal isyarat BISINDO untuk huruf terbatas A–E. Aplikasi ini menggunakan MediaPipe HandLandmarker untuk menangkap landmark tangan dan model MLP TensorFlow.js untuk klasifikasi huruf di browser. Semua pemrosesan video berlangsung secara lokal di perangkat pengguna; tidak ada unggahan video atau data ke server.
 
-Fitur: kelas "Netral" agar model tidak menebak saat tangan diam, ekspor dan impor data JSON, hapus data, dan cara menambah huruf baru..
-## Fitur
-- Antarmuka web sederhana
-- Kamus data BISINDO
-- Penerjemahan ke huruf otomatis
+Catatan penting: demo ini terbatas pada huruf A–E dan bukan pengganti penerjemah bahasa isyarat yang profesional. Verifikasi isyarat BISINDO tetap harus dilakukan dengan sumber resmi atau penutur asli.
 
-## Cara menjalankan
-1. Buka file `index.html` di browser.
-2. Atau jalankan server statis lokal jika diperlukan.
+## Cara menjalankan lokal
+1. Buka folder proyek di editor.
+2. Jalankan server lokal seperti Live Server.
+3. Pastikan aplikasi dibuka lewat http://localhost, bukan file:// karena kamera tidak akan bekerja pada file static mentah.
+4. Klik "Mulai kamera" lalu rekam data untuk kelas yang tersedia.
+
+## Rekam, latih, dan unduh model
+1. Pilih kelas seperti A, B, C, D, atau E dan klik untuk merekam sampel.
+2. Setelah data cukup, klik "Latih model".
+3. Setelah model siap, klik "Unduh model" untuk menyimpan file model di perangkat.
+4. Letakkan file hasil unduhan ke folder model/ di repositori:
+   - model/bisindo-model.json
+   - model/bisindo-model.weights.bin
+5. Jika Anda ingin memakai dataset bawaan, letakkan file dataset di folder data/ dengan nama:
+   - data/bisindo-dataset.json
 
 ## Deploy ke GitHub Pages
-Repository GitHub Anda saat ini adalah:
-- `https://github.com/aufatsaqief/Penerjemah-BISINDO.git`
+1. Upload proyek ke repositori GitHub.
+2. Buka repository di GitHub.
+3. Masuk ke Settings > Pages.
+4. Pilih Deploy from a branch.
+5. Gunakan branch main dan folder / (root).
+6. Simpan pengaturan, lalu GitHub Pages akan menghasilkan URL seperti:
+   - https://USERNAME.github.io/REPO/
 
-Maka URL GitHub Pages yang benar adalah:
-- `https://aufatsaqief.github.io/Penerjemah-BISINDO/`
-
-Langkah deploy:
-1. Pastikan repo sudah tersimpan di GitHub dan branch default adalah `main`.
-2. Buka repository GitHub di browser.
-3. Masuk ke `Settings` > `Pages`.
-4. Pilih `Source: GitHub Actions`.
-5. Push ke branch `main`, lalu workflow akan otomatis deploy.
-
-## Teknologi
-- HTML
-- CSS
-- JavaScript
-- TensorFlow.js
--  MediaPipe HandLandmarker
+## Catatan keamanan & etika
+- Video diproses di browser lokal dan tidak diunggah.
+- Ini adalah demo terbatas untuk pendekatan edukasi dan eksperimen.
+- Untuk kebutuhan komunikasi nyata, gunakan sumber resmi atau penutur BISINDO asli untuk validasi isyarat.

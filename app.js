@@ -72,6 +72,18 @@ function renderClasses() {
   select.value = CLASSES.some((_, ci) => String(ci) === prev) ? prev : "0";
 }
 
+async function loadBundledDataset() {
+  if (data.y.length) return; // never overwrite data the visitor already recorded
+  try {
+    const d = await (await fetch("data/bisindo-dataset.json")).json();
+    if (!d.classes.every((c, i) => c === CLASSES[i])) return;
+    data = { X: d.X, y: d.y };
+    saveData(); renderClasses();
+    log(`Dataset bawaan dimuat: ${data.y.length} sampel.`);
+  } catch {}
+}
+loadBundledDataset();
+
 function startRecording(ci) {
   if (!running) return say("Mulai kamera dulu.");
   if (rec) return;
@@ -212,6 +224,8 @@ async function startCamera() {
 /* ===== Event ===== */
 $("start").onclick = startCamera;
 $("train").onclick = train;
+$("dl").onclick = () =>
+  model ? model.save("downloads://bisindo-model") : log("Belum ada model. Latih model dulu.");
 $("space").onclick = () => { text += " "; $("out").textContent = text; };
 $("del").onclick = () => { text = text.slice(0, -1); $("out").textContent = text; };
 $("clr").onclick = () => { text = ""; $("out").textContent = ""; };
@@ -251,11 +265,18 @@ $("file").onchange = async (e) => {
 };
 
 renderClasses();
-tf.loadLayersModel(MODEL_KEY).then((m) => {
-  if (m.outputs[0].shape[1] !== CLASSES.length) {
-    log("Daftar kelas berubah. Rekam huruf baru lalu latih ulang model.");
-    return;
+async function initModel() {
+  let loaded = false;
+  for (const src of [MODEL_KEY, "model/bisindo-model.json"]) {
+    try {
+      const m = await tf.loadLayersModel(src);
+      if (m.outputs[0].shape[1] !== CLASSES.length) continue; // class count mismatch: skip this model
+      model = m;
+      $("state").textContent = "Model siap";
+      loaded = true;
+      return;
+    } catch {}
   }
-  model = m;
-  $("state").textContent = "Model tersimpan dimuat";
-}).catch(() => {});
+  if (!loaded) log("Daftar kelas berubah. Latih ulang model.");
+}
+initModel();
