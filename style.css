@@ -1,0 +1,104 @@
+/* ===== Tokens ===== */
+:root {
+  --bg: #0f1416;
+  --panel: #182024;
+  --line: #2a373d;
+  --tx: #e9f1f3;
+  --mut: #8fa4ab;
+  --accent: #3ddbc0;   /* teal: tangan terdeteksi, prediksi yakin */
+  --rec: #ffbe55;      /* amber: sedang merekam */
+}
+
+/* ===== Base ===== */
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--bg);
+  color: var(--tx);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+h1 { font-size: 1.2rem; font-weight: 600; }
+h1 small { display: block; margin-top: 3px; font-size: .8rem; font-weight: 400; color: var(--mut); }
+h2 { margin-bottom: 10px; font-size: .95rem; font-weight: 600; }
+.muted { color: var(--mut); font-size: .85rem; margin-top: 4px; }
+
+/* ===== Tombol ===== */
+button {
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #06201b;
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+button.ghost { background: transparent; color: var(--tx); border: 1px solid var(--line); font-weight: 500; }
+button:hover:not(:disabled) { filter: brightness(1.1); }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible { outline: 2px solid var(--rec); outline-offset: 2px; }
+
+/* ===== Layout ===== */
+main { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+.side { display: grid; gap: 16px; align-content: start; }
+@media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+.panel { padding: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+
+/* ===== Kamera ===== */
+.cam { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 8px; background: #000; }
+.cam video, .cam canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; transform: scaleX(-1); /* efek cermin */
+}
+.badge {
+  position: absolute; left: 12px; right: 12px; bottom: 12px;
+  padding: 10px 14px; border-radius: 8px;
+  background: rgba(10, 16, 18, .8); border: 1px solid var(--accent);
+  color: var(--accent); font-size: .95rem; font-weight: 600;
+}
+.badge.idle { border-color: var(--line); color: var(--mut); }
+.msg {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  padding: 24px; text-align: center; font-size: .9rem; color: var(--mut);
+  background: rgba(0, 0, 0, .65);
+}
+
+/* ===== Prediksi ===== */
+.row { display: flex; align-items: center; gap: 16px; }
+.ring { position: relative; flex: none; width: 120px; height: 120px; }
+.ring svg { transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 10; }
+.ring .track { stroke: var(--line); }
+#arc { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .2s; }
+.ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.5rem; }
+#state { font-weight: 600; }
+
+/* ===== Teks hasil ===== */
+#out {
+  min-height: 56px; padding: 10px 12px; border-radius: 8px;
+  background: var(--bg); border: 1px solid var(--line);
+  font-size: 1.4rem; letter-spacing: 2px; word-break: break-all;
+}
+.tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.tools button { padding: 8px 12px; font-size: .8rem; }
+
+/* ===== Data & model ===== */
+.grid { grid-template-columns: repeat(4, 1fr); }
+.grid button { padding: 8px 6px; font-size: .8rem; }
+select.ghost { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--tx); font: inherit; font-size: .8rem; }
+#log { min-height: 1.2em; margin-top: 8px; font-size: .8rem; color: var(--mut); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

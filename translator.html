@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Penerjemah BISINDO (A–E)</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .grid button,.tools button{padding:8px 6px;font-size:.8rem}
+    .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    #out{min-height:56px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--line);font-size:1.4rem;letter-spacing:2px;word-break:break-all}
+    #log{margin-top:8px;font-size:.8rem;color:var(--mut);min-height:1.2em}
+    a.back{color:var(--mut);font-size:.85rem}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Penerjemah BISINDO 
+      <small>Landmark tangan MediaPipe + MLP TensorFlow.js, semua berjalan lokal. <a class="back" href="index.html">Kembali ke dashboard swipe</a></small>
+    </h1>
+    <div class="btns"><button id="start">Mulai kamera</button></div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="cam">
+        <video id="vid" playsinline muted></video>
+        <canvas id="ov"></canvas>
+        <div class="msg" id="msg">Klik "Mulai kamera". Rekam data dulu, lalu latih model.</div>
+        <div class="badge idle" id="badge"><span id="letter">Belum ada prediksi</span></div>
+      </div>
+    </section>
+
+    <section class="side">
+      <div class="card">
+        <h2>PREDIKSI</h2>
+        <div class="row">
+          <div class="ring">
+            <svg width="120" height="120">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="10"/>
+              <circle id="arc" cx="60" cy="60" r="50" fill="none" stroke="#39ff9c" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"/>
+            </svg>
+            <b id="pct">0%</b>
+          </div>
+          <div><div id="state">Model belum siap</div><div class="status muted" id="fps">-- FPS</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>TEKS HASIL</h2>
+        <div id="out"></div>
+        <div class="tools"><button class="ghost" id="space">Spasi</button><button class="ghost" id="del">Hapus huruf</button><button class="ghost" id="clr">Kosongkan</button></div>
+      </div>
+
+      <div class="card">
+        <h2>DATA LATIH (klik kelas untuk merekam)</h2>
+        <div class="grid" id="classes"></div>
+        <div class="tools">
+          <button class="ghost" id="export">Ekspor JSON</button>
+          <button class="ghost" id="import">Impor JSON</button>
+          <button class="ghost" id="reset">Hapus data</button>
+          <input type="file" id="file" accept="application/json" hidden>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>MODEL</h2>
+        <button id="train">Latih model</button>
+        <div id="log"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script type="module" src="translator.js"></script>
+</body>
+</html>

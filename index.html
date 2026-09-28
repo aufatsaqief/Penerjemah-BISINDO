@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Penerjemah BISINDO (A–E)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Penerjemah BISINDO (A–E)
+      <small>Landmark tangan MediaPipe + MLP TensorFlow.js. Semua berjalan lokal di browser.</small>
+    </h1>
+    <button id="start">Mulai kamera</button>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="cam">
+        <video id="vid" playsinline muted></video>
+        <canvas id="ov"></canvas>
+        <div class="msg" id="msg">Klik "Mulai kamera". Rekam data dulu, lalu latih model.</div>
+        <div class="badge idle" id="badge"><span id="letter">Belum ada prediksi</span></div>
+      </div>
+    </section>
+
+    <section class="side">
+      <div class="panel">
+        <h2>Prediksi</h2>
+        <div class="row">
+          <div class="ring">
+            <svg width="120" height="120" aria-hidden="true">
+              <circle class="track" cx="60" cy="60" r="50"/>
+              <circle id="arc" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314"/>
+            </svg>
+            <b id="pct">0%</b>
+          </div>
+          <div><div id="state">Model belum siap</div><div class="muted" id="fps">-- FPS</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Teks hasil</h2>
+        <div id="out"></div>
+        <div class="tools">
+          <button class="ghost" id="space">Spasi</button>
+          <button class="ghost" id="del">Hapus huruf</button>
+          <button class="ghost" id="clr">Kosongkan</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Data latih (klik kelas untuk merekam)</h2>
+        <div class="grid" id="classes"></div>
+        <div class="tools">
+          <select id="delClass" class="ghost"></select>
+          <button class="ghost" id="delOne">Hapus kelas ini</button>
+          <button class="ghost" id="export">Ekspor JSON</button>
+          <button class="ghost" id="import">Impor JSON</button>
+          <button class="ghost" id="reset">Hapus data</button>
+          <input type="file" id="file" accept="application/json" hidden>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Model</h2>
+        <button id="train">Latih model</button>
+        <div id="log"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
