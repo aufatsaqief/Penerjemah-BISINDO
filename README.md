@@ -1,6 +1,6 @@
 # Penerjemah BISINDO
 
-Proyek web sederhana untuk menerjemahkan teks dari bahasa Indonesia ke bahasa BISINDO dan sebaliknya.
+Proyek web sederhana untuk menerjemahkan teks dari bahasa BISINDO ke bahasa Indonesia.
 
 ## Fitur
 - Antarmuka web sederhana
