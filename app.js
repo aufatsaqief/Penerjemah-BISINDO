@@ -3,6 +3,14 @@ import { HandLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.jsdel
 /* ===== Konfigurasi ===== */
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+// R: kelingking terangkat lalu diayun turun
+const R_POSE_CLASS = "R_pose";
+const R_DROP_THRESHOLD = 0.15;
+const R_WINDOW_MS = 600;
+
+// Z: lintasan pergelangan membentuk pola kanan-diagonal-kanan
+const Z_WINDOW_MS = 1500;
+const Z_MIN_SEGMENT = 0.05;
 const CLASSES = ["Netral", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"]; // "Netral" = tangan diam/santai, bukan huruf
 const TARGET = 200;        // sampel per kelas per sesi rekam
 const SAMPLE_GAP_MS = 60;  // jeda antar sampel agar datanya bervariasi
@@ -11,7 +19,7 @@ const HOLD_MS = 500;       // huruf harus stabil selama ini sebelum masuk ke tek
 const MIN_CONF = 0.98;
 const N_FEATURES = 86;     // 2 tangan x 42 + selisih posisi pergelangan (x, y)
 const DATA_KEY = "bisindo-data";
-const MODEL_KEY = "localstorage://bisindo-model";
+const MODEL_KEY = "localstorage://bisindo-model-v2";
 
 /* ===== DOM & state ===== */
 const $ = (id) => document.getElementById(id);
@@ -20,6 +28,7 @@ let landmarker, drawer, model = null, running = false, lastVideoTime = -1;
 let data = JSON.parse(localStorage.getItem(DATA_KEY) || '{"X":[],"y":[]}');
 let rec = null;            // { ci, n, go, last }
 let text = "", cand = null, candSince = 0, locked = false;
+let rTrail = [], zTrail = [];
 let frames = 0, fpsTimer = performance.now();
 
 const log = (t) => ($("log").textContent = t);
@@ -75,7 +84,7 @@ function renderClasses() {
 async function loadBundledDataset() {
   if (data.y.length) return; // never overwrite data the visitor already recorded
   try {
-    const d = await (await fetch("data/bisindo-dataset.json")).json();
+    const d = await (await fetch("data/bisindo-dataset1.json")).json();
     if (!d.classes.every((c, i) => c === CLASSES[i])) return;
     data = { X: d.X, y: d.y };
     saveData(); renderClasses();
@@ -165,6 +174,51 @@ function buildText(label, conf, now) {
   }
 }
 
+// Bandingkan posisi pinky relatif wrist agar perubahan ukuran tangan tidak dominan.
+function detectR(landmarks, now) {
+  const wrist = landmarks[0];
+  const middleTip = landmarks[12];
+  const pinkyTip = landmarks[20];
+  const handHeight = Math.hypot(middleTip.x - wrist.x, middleTip.y - wrist.y) || 1;
+  const position = (pinkyTip.y - wrist.y) / handHeight;
+  rTrail = rTrail.filter((point) => now - point.time <= R_WINDOW_MS);
+  if (rTrail.length && position - rTrail[0].position >= R_DROP_THRESHOLD) {
+    rTrail = [];
+    return true;
+  }
+  rTrail.push({ position, time: now });
+  return false;
+}
+
+// Koordinat gambar: Z dibaca sebagai kanan, diagonal kiri-bawah, lalu kanan.
+function detectZ(wrist, now) {
+  zTrail = zTrail.filter((point) => now - point.time <= Z_WINDOW_MS);
+  zTrail.push({ x: wrist.x, y: wrist.y, time: now });
+
+  for (let i = 0; i < zTrail.length - 3; i++) {
+    const start = zTrail[i];
+    for (let j = i + 1; j < zTrail.length - 2; j++) {
+      const top = zTrail[j];
+      const dx1 = top.x - start.x, dy1 = top.y - start.y;
+      if (dx1 < Z_MIN_SEGMENT || Math.abs(dy1) > Z_MIN_SEGMENT) continue;
+      for (let k = j + 1; k < zTrail.length - 1; k++) {
+        const diagonal = zTrail[k];
+        const dx2 = diagonal.x - top.x, dy2 = diagonal.y - top.y;
+        if (dx2 > -Z_MIN_SEGMENT || dy2 < Z_MIN_SEGMENT) continue;
+        for (let l = k + 1; l < zTrail.length; l++) {
+          const end = zTrail[l];
+          const dx3 = end.x - diagonal.x, dy3 = end.y - diagonal.y;
+          if (dx3 >= Z_MIN_SEGMENT && Math.abs(dy3) <= Z_MIN_SEGMENT) {
+            zTrail = [];
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
 /* ===== Loop ===== */
 function loop() {
   if (!running) return;
@@ -187,9 +241,27 @@ function loop() {
     if (model && !rec) {
       const r = predict(f);
       showPrediction(r);
-      buildText(r.label, r.conf, now);
+      if (r.label === R_POSE_CLASS && r.conf >= MIN_CONF) {
+        const detected = detectR(res.landmarks[0], now);
+        buildText(null, 0, now);
+        if (detected) {
+          cand = "R"; candSince = now - HOLD_MS; locked = false;
+          buildText("R", 1, now);
+        }
+      } else {
+        rTrail = [];
+        buildText(r.label === R_POSE_CLASS ? null : r.label, r.conf, now);
+      }
+    } else {
+      rTrail = [];
+    }
+    if (detectZ(res.landmarks[0][0], now)) {
+      cand = "Z"; candSince = now - HOLD_MS; locked = false;
+      buildText("Z", 1, now);
     }
   } else {
+    rTrail = [];
+    zTrail = [];
     buildText(null, 0, now);
     if (!rec) $("letter").textContent = "Tangan belum terdeteksi";
   }
@@ -267,7 +339,7 @@ $("file").onchange = async (e) => {
 renderClasses();
 async function initModel() {
   let loaded = false;
-  for (const src of [MODEL_KEY, "model/bisindo-model.json"]) {
+  for (const src of [MODEL_KEY, "model/bisindo-model(3).json"]) {
     try {
       const m = await tf.loadLayersModel(src);
       if (m.outputs[0].shape[1] !== CLASSES.length) continue; // class count mismatch: skip this model
