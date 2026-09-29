@@ -2,7 +2,7 @@
 
 Proyek demo pengenal isyarat BISINDO untuk huruf terbatas A–E. Aplikasi ini menggunakan MediaPipe HandLandmarker untuk menangkap landmark tangan dan model MLP TensorFlow.js untuk klasifikasi huruf di browser. Semua pemrosesan video berlangsung secara lokal di perangkat pengguna; tidak ada unggahan video atau data ke server.
 
-Catatan penting: demo ini terbatas pada huruf A–E dan bukan pengganti penerjemah bahasa isyarat yang profesional. Verifikasi isyarat BISINDO tetap harus dilakukan dengan sumber resmi atau penutur asli.
+Catatan penting: demo ini  bukan pengganti penerjemah bahasa isyarat yang profesional. Verifikasi isyarat BISINDO tetap harus dilakukan dengan sumber resmi atau penutur asli.
 
 ## Cara menjalankan lokal
 1. Buka folder proyek di editor.
