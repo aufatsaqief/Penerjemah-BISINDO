@@ -20,16 +20,10 @@ Catatan penting: demo ini  bukan pengganti penerjemah bahasa isyarat yang profes
 5. Jika Anda ingin memakai dataset bawaan, letakkan file dataset di folder data/ dengan nama:
    - data/bisindo-dataset.json
 
-## Deploy ke GitHub Pages
-1. Upload proyek ke repositori GitHub.
-2. Buka repository di GitHub.
-3. Masuk ke Settings > Pages.
-4. Pilih Deploy from a branch.
-5. Gunakan branch main dan folder / (root).
-6. Simpan pengaturan, lalu GitHub Pages akan menghasilkan URL seperti:
-   - https://USERNAME.github.io/REPO/
 
 ## Catatan keamanan & etika
 - Video diproses di browser lokal dan tidak diunggah.
 - Ini adalah demo terbatas untuk pendekatan edukasi dan eksperimen.
 - Untuk kebutuhan komunikasi nyata, gunakan sumber resmi atau penutur BISINDO asli untuk validasi isyarat.
+
+  
